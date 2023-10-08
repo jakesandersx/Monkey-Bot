@@ -4,17 +4,14 @@ jolly_text = '''David. I want you to take a second and examine the context of th
 help_text = '''```
 please type %help <command name> for descriptions on the commands
 
-av
 ban
 clear
 coinflip
 claninfo
+credits
 data
-deck
 eightball
 help
-history
-jr
 kick
 mute
 profile
@@ -22,7 +19,6 @@ random
 rps
 serverinfo
 song
-stats
 timeout
 unban
 unmute
