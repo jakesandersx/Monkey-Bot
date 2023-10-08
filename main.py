@@ -8,24 +8,24 @@ import sosa
 import os
 from datetime import datetime
 import traceback
-from bs4 import BeautifulSoup
+import mysql.connector
 import time
-import schedule
 import ast
 import string
 import random
 import requests
+from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
+import pandas as pd
+import tabulate
+import sqlite3
 import json
 import unidecode
-import pandas as pd
-import lxml
-from io import BytesIO
-from PIL import Image, ImageEnhance
+import io
 
 
 
-clash_api_token = '[REDACTED]'
+clash_api_token = [REDACTED]
 
 intents = discord.Intents.all()
 intents.members = True
@@ -35,12 +35,12 @@ client = commands.Bot(command_prefix='%', intents=intents)
 client.launch_time = datetime.now()
 client.remove_command('help')
 
-error_channel = client.get_channel(1080940745864773764)
-join_leave_channel = client.get_channel(1080940790316015738)
-commands_channel = client.get_channel(1080940827523682364)
-edited_messages_channel = client.get_channel(1080940862554509432)
-deleted_messages_channel = client.get_channel(1080940877716922428)
-launches_channel = client.get_channel(1080940957744238674)
+error_channel = client.get_channel([REDACTED])
+join_leave_channel = client.get_channel([REDACTED])
+commands_channel = client.get_channel([REDACTED])
+edited_messages_channel = client.get_channel([REDACTED])
+deleted_messages_channel = client.get_channel([REDACTED])
+launches_channel = client.get_channel([REDACTED])
 
 
 @client.command()
@@ -54,38 +54,28 @@ async def coinflip(ctx):
     print('coinflip command finished')
 
 
-@client.command()
+'''@client.command()
 async def av(ctx, member: discord.Member = None):
-    if member == None:
+    if member is None:
         member = ctx.author
 
-    memberAvatar = member.avatar_url
+    memberAvatar = member.avatar.url
 
     avatarEmbed = discord.Embed(title=f"{member.name}'s Avatar")
     avatarEmbed.set_image(url=memberAvatar)
     avatarEmbed.set_footer(text=f"Requested by {ctx.author}",
-                           icon_url=ctx.author.avatar_url)
+                           icon_url=ctx.author.avatar.url)
 
     await ctx.send(embed=avatarEmbed)
     print('pfp command finished')
 
 
 @client.command()
-async def history(ctx, member: discord.Member = None):
+async def userprofile(ctx, member:discord.Member=None):
     if member == None:
         member = ctx.author
-
-        counter = 0
-
-        for channel in ctx.guild.channels:
-            if isinstance(channel, discord.TextChannel):
-                async for message in channel.history(limit=999999999999):
-                    if message.author == member:
-                        counter += 1
-
-    await ctx.reply(f'{member} has sent {counter} messages in this server.')
-    print('history command finished')
-
+    embed = discord.Embed(title = member).set_image(url = member.avatar.url)
+    await ctx.send(embed = embed)'''
 
 @client.command()
 async def profile(ctx, member: discord.Member = None):
@@ -100,13 +90,10 @@ async def profile(ctx, member: discord.Member = None):
               ('Account Created',
                member.created_at.strftime('%m/%d/%Y %H:%M:%S'), True),
               ('Joined Server', member.joined_at.strftime('%m/%d/%Y %H:%M:%S'),
-               True), ('Messages Sent', 'Use %history', True)]
+               True)]
 
     for name, value, inline in fields:
         profileEmbed.add_field(name=name, value=value, inline=inline)
-    profileEmbed.set_thumbnail(url=member.avatar_url)
-    profileEmbed.set_footer(text=f"Requested by {ctx.author}",
-                            icon_url=ctx.author.avatar_url)
 
     await ctx.send(embed=profileEmbed)
     print('profile command finished')
@@ -115,7 +102,7 @@ async def profile(ctx, member: discord.Member = None):
 async def on_member_join(member: discord.Member):
     embed = discord.Embed(description=f"{member} has joined the server",
                           color=0x2ecc71)
-    join_leave_channel = client.get_channel(1080940790316015738)
+    join_leave_channel = client.get_channel([REDACTED])
     await join_leave_channel.send(f"{member} has joined the server")
 
 
@@ -123,7 +110,7 @@ async def on_member_join(member: discord.Member):
 async def on_member_remove(member: discord.Member):
     embed = discord.Embed(description=f"{member} has left the server",
                           color=0xe74c3c)
-    join_leave_channel = client.get_channel(1080940790316015738)
+    join_leave_channel = client.get_channel([REDACTED])
     await join_leave_channel.send(f"{member} has left the server")
 
 
@@ -136,10 +123,10 @@ async def on_ready():
     print('Connected')
     print('Successful login as {0.user}'.format(client))
     print('\n')
-    log_server_update = client.get_channel(990275272261648454)
+    log_server_update = client.get_channel([REDACTED])
     time = datetime.now()
     await log_server_update.send('monkey bot is back online at {}'.format(time))
-    launches_channel = client.get_channel(1080940957744238674)
+    launches_channel = client.get_channel([REDACTED])
     await launches_channel.send(f'monkey bot got back online at {time}')
 
 
@@ -152,8 +139,8 @@ async def on_message_edit(before, after):
     edit_embed.add_field(name='Edited Message',
                          value=f'{after.content}',
                          inline=False)
-    jammo_log = client.get_channel(990291989905948672)
-    edited_messages_channel = client.get_channel(1080940862554509432)
+    jammo_log = client.get_channel([REDACTED])
+    edited_messages_channel = client.get_channel([REDACTED])
     await jammo_log.send(embed=edit_embed)
     await edited_messages_channel.send(embed=edit_embed)
     
@@ -165,8 +152,8 @@ async def on_message_delete(message):
         description=
         f"Message from {message.author} deleted in {message.channel.mention}",
         color=0x3498db)
-    deleted_messages_channel = client.get_channel(1080940877716922428)
-    jammo_logs = client.get_channel(990281292878852176)
+    deleted_messages_channel = client.get_channel([REDACTED])
+    jammo_logs = client.get_channel([REDACTED])
     embed.add_field(name="Message: ", value=message.content)
     embed.timestamp = message.created_at
     await deleted_messages_channel.send(embed=embed)
@@ -175,15 +162,14 @@ async def on_message_delete(message):
 
 @client.command()
 async def credits(ctx):
-    await ctx.send('`Made by Jammo`')
-    await ctx.send('`With help from Tekno and tiaanvanniekerk`')
+    await ctx.send('`Made by Jammo with help from tekno`')
     print('credits command finished')
 
 
-@client.command()
+'''@client.command()
 async def jr(ctx):
     await ctx.send(sosa.jolly_text)
-    print('jolly rage command finished')
+    print('jolly rage command finished')'''
 
 
 
@@ -193,10 +179,10 @@ async def help(ctx, args=None):
         await ctx.send(sosa.help_text)
     else:
         arg = args.lower()
-        if arg == 'av':
+        '''if arg == 'av':
             await ctx.reply(
-                "%av @User replies with the mentioned user's avatar picture")
-        elif arg == 'ban':
+                "%av @User replies with the mentioned user's avatar picture")'''
+        if arg == 'ban':
             await ctx.reply(
                 'Admin Only: %ban @User will ban a user from the server')
         elif arg == 'clear':
@@ -207,10 +193,6 @@ async def help(ctx, args=None):
             await ctx.reply('%coinflip flips a coin')
         elif arg == 'claninfo':
             await ctx.reply('%claninfo #clantag provides clan information on any given clan')
-        elif arg == 'data':
-            await ctx.reply(
-                'Admin Only: %data will send a download link for admins to view logs'
-            )
         elif arg == 'deck':
             await ctx.reply(
                 '%deck {trophies} {name} retrives a players deck using their in game name and trophy count'
@@ -220,12 +202,6 @@ async def help(ctx, args=None):
                 '%eightball {question} will ask the 8ball a question')
         elif arg == 'help':
             await ctx.reply('U r here rn')
-        elif arg == 'history':
-            await ctx.reply(
-                '%history @User will return how many messages a user has sent in the current server'
-            )
-        elif arg == 'jr':
-            await ctx.reply(':smirk:')
         elif arg == 'stats':
             await ctx.reply('%stats {trophies} {name} will return some basic stats about any given player')
         elif arg == 'kick':
@@ -246,7 +222,7 @@ async def help(ctx, args=None):
             )
         elif arg == 'rps':
             await ctx.reply('%rps will play rock paper scissors')
-        elif arg == 'server':
+        elif arg == 'serverinfo':
             await ctx.reply(
                 '%serverinfo will display information about the current server'
             )
@@ -293,7 +269,7 @@ async def eightball(ctx, *, question):
     responses = [
         'Fo sho', 'Dawg. Fuck no.', 'Idk fam. Ask someone else',
         "Yes but only if you're drunk as fuck", 'Do what Jesus would do',
-        'Who the fuck cares about that', 'No doubt niggy', 'Dont sweat it fam',
+        'Who the fuck cares about that', 'Dont sweat it fam',
         'Awh Hell nah', 'Aint no way bruh', 'I mean shiii its possible',
         'Probably but like I aint bettin on that shi',
         'Fuck it. You got this shi', 'Nah. Try again later fam',
@@ -305,48 +281,34 @@ async def eightball(ctx, *, question):
     await ctx.reply(response)
     print('8ball command finished')
 
-
-VC = '%Vee See'
-jit = '%Jit'
-nigga = '%Nigga'
-chink = '%Chink'
-jew = '%Jew'
-chinese = '%Chinese'
-dari = '%Dariotic'
-white = '%White'
-asian = '%Asian'
-Jolly = '%Jolly'
-Axcel = '%Axcel'
-Shayah = '%Shayah'
-GFK = '%GFK'
-RG = '%RageGhost'
-Jam = '%Jammo'
-vaz = '%Vaz'
-Sheath = '%Sheath'
-Milo = '%Milo'
-Swiggy = '%Swiggy'
-Chuck = '%Chuck'
-Kappa = '%Kappa'
-Chimney = '%Chimney'
-Japanese = '%Japanese'
-
-
 @client.event
 async def on_message(message):
     msg = message
     content = msg.content
-    
-    if message.guild == client.get_guild(846859389104554046):
-        with open("data.txt", "a") as n:
-            n.write("\n" + 'Text: ' + msg.content + " ||||| " + 'Author: ' +
-                    str(msg.author) + " ||||| " + str(msg.created_at) +
-                    ' ||||| ' + 'Jump Link: ' + str(msg.jump_url))
+
+    if message.guild == client.get_guild([REDACTED]):
+        conn = mysql.connector.connect(
+            host='78.108.218.47',
+            port=3306,
+            user='u96340_X2xEqpf6PS',
+            password='1.9gu6a0!dfTO6@!+jqCbhnF',
+            database='s96340_DK-Data'
+        )
+        cursor = conn.cursor()
+
+        text = message.content
+        author = str(message.author)
+        date = str(message.created_at)
+        link = str(message.jump_url)
+        cursor.execute("INSERT INTO Data (Author, Date, Link, Text) VALUES (%s, %s, %s, %s)",
+                       (author, date, link, text))
+        conn.commit()
      
-    rageghost_id = 695003930660306945
-    jolly_id = 493196157867130919
-    jammo_id = 819749600205733989
+    rageghost_id = [REDACTED]
+    jolly_id = [REDACTED]
+    jammo_id = [REDACTED]
     author = message.author
-    if author == client.get_user(695003930660306945): #Rageghost id
+    if author == client.get_user([REDACTED]): #Rageghost id
         if 'david' in content.lower():
             await message.delete()
             await message.channel.send(f'Deleted a message from {msg.author}')
@@ -370,7 +332,7 @@ async def kick(ctx, member: discord.Member, *, reason=None):
 async def kick_error(ctx, error):
     if isinstance(error, MissingPermissions):
         await ctx.reply('you cannot kick people')
-        error_channel = client.get_channel(1080940745864773764)
+        error_channel = client.get_channel([REDACTED])
         await error_channel.send(f"{ctx.author} tried to kick someone")
 
 
@@ -386,7 +348,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
 async def ban_error(ctx, error):
     if isinstance(error, MissingPermissions):
         await ctx.reply('you cannot ban people')
-        error_channel = client.get_channel(1080940745864773764)
+        error_channel = client.get_channel([REDACTED])
         await error_channel.send(f"{ctx.author} tried to ban someone")
 
 
@@ -401,7 +363,7 @@ async def clear(ctx, amount=2):
 async def clear_error(ctx, error):
     if isinstance(error, MissingPermissions):
         await ctx.reply('you dont have permissions to use that')
-        error_channel = client.get_channel(1080940745864773764)
+        error_channel = client.get_channel([REDACTED])
         await error_channel.send(f"{ctx.author} tried to use clear")
 
 
@@ -417,14 +379,10 @@ async def timeout_user(*, user_id: int, guild_id: int, until):
             return True
         return False
     
-@client.command()
-async def say(ctx, message: str):
-    channel_id = client.get_channel(980718334309957652)
-    await channel_id.send(message)
 
 @client.command()
-async def random():
-    channel_id = client.get_channel(980718334309957652)
+async def random(ctx):
+    channel_id = client.get_channel([REDACTED])
     random_list = [
         'https://cdn.discordapp.com/attachments/632633970969935873/991079032269459456/IMG_6021.jpg',
         'https://i.imgur.com/rfMjAjs.png',
@@ -504,7 +462,6 @@ async def random():
         'i, crying, dear sir i ripected for you', 'watching. Fanily Guy!',
         'i, mark, BALLS', 'LOVE ROCKET CYCLE', 'Yoooo???',
         'Them bitches got some saggy ahhh tiddies',
-        'Goofy ahh nigggaaaaaaa :skull: :skull:',
         'https://tenor.com/view/deception-apple-logo-obey-gif-13713054',
         'https://cdn.discordapp.com/attachments/932405338991378485/943887845528068147/impact.png',
         'Sick.', 'Thoughts??',
@@ -532,7 +489,6 @@ async def random():
         'http://astronaut.io/#',
         'https://cdn.discordapp.com/attachments/632633970969935873/934980157263974450/IMG_2936.jpg',
         'Bro ill eat ur dead moms ashes like fun dip',
-        'Croak weak ahh nigggaaaa',
         'On this big ass wap i actually got hacked',
         'one time i fapped so long i got a vruise on my arm',
         'https://cdn.discordapp.com/attachments/632633970969935873/653804884381925387/video0.mp4',
@@ -574,7 +530,6 @@ async def random():
         'Man whenever i see cute dogs i justr want to bite it',
         'Lmfaoooo stay broke boy',
         'Bich its national sex day every day for my meat',
-        'U niggaz in trouble',
         'Idk what bitches mean When black penis feels better. I tried it out myself it feels the same',
         'I told one of the strippers poggers when she whipped her titties out',
         'U rly think Im dumb i Have a 2.6 Gpa',
@@ -592,7 +547,7 @@ async def random():
     ]
 
     reply = rand.choice(random_list)
-    await channel_id.send(reply)
+    await ctx.send(reply)
     print('random command finished')
 
 
@@ -633,12 +588,6 @@ async def serverinfo(ctx):
     embed2.add_field(name='Voice Channels', value=voice_channels, inline=True)
     embed2.add_field(name='Categories', value=categories, inline=True)
 
-    embed2.set_thumbnail(url=ctx.guild.icon_url)
-    embed2.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
-    embed2.set_footer(
-        text=
-        f'Requested by {ctx.author} | Server Created: {ctx.guild.created_at.__format__("%m/%d/%Y")}',
-        icon_url=ctx.author.avatar_url)
 
     await ctx.send(embed=embed2)
     print('serverinfo command finished')
@@ -681,7 +630,7 @@ async def mute(ctx, member: discord.Member, num: int, time: str):
 async def mute_error(ctx, error):
     if isinstance(error, MissingPermissions):
         await ctx.reply('you cant mute people')
-        error_channel = client.get_channel(1080940745864773764)
+        error_channel = client.get_channel([REDACTED])
         await error_channel.send(f"{ctx.author} tried to mute someone")
 
 
@@ -703,7 +652,7 @@ async def unmute(ctx, member: discord.Member):
 async def unmute_error(ctx, error):
     if isinstance(error, MissingPermissions):
         await ctx.reply('you cant unmute people')
-        error_channel = client.get_channel(1080940745864773764)
+        error_channel = client.get_channel([REDACTED])
         await error_channel.send(f"{ctx.author} tried to unmute someone")
 
 
@@ -721,7 +670,7 @@ async def unban(ctx, id: int):
 async def unban_error(ctx, error):
     if isinstance(error, MissingPermissions):
         await ctx.reply('you cant unban people')
-        error_channel = client.get_channel(1080940745864773764)
+        error_channel = client.get_channel([REDACTED])
         await error_channel.send(f"{ctx.author} tried to unban someone")
 
 
@@ -730,8 +679,8 @@ async def on_command(ctx):
     user = ctx.author
     command = ctx.command
 
-    jammo_log_channel = client.get_channel(990275229110636574)
-    commands_channel = client.get_channel(1080940827523682364)
+    jammo_log_channel = client.get_channel([REDACTED])
+    commands_channel = client.get_channel([REDACTED])
     await jammo_log_channel.send(f'{user} used -> {command}')
     await commands_channel.send(f'{user} used -> {command}')
     
@@ -745,12 +694,12 @@ async def data(message):
 @data.error
 async def logs_error(ctx, error):
     if isinstance(error, MissingPermissions):
-        error_channel = client.get_channel(1080940745864773764)
+        error_channel = client.get_channel([REDACTED])
         await error_channel.send('log error')
         
 @client.command()
 async def claninfo(ctx, clan_tag):
-    ua = UserAgent(verify_ssl=False, fallback_cache_timeout=300)
+    ua = UserAgent(verify_ssl=False)
     user_agent = ua.random
     api_token = clash_api_token
     headers = {
@@ -760,7 +709,7 @@ async def claninfo(ctx, clan_tag):
     }
 
     r = requests.get(f"https://api.clashroyale.com/v1/clans/%23{clan_tag.replace('#', '')}", headers=headers)
-    print(r.content)
+    
     if int(r.status_code) == 200:
         clan_data = r.json()
         clan_name = clan_data['name']
@@ -769,9 +718,18 @@ async def claninfo(ctx, clan_tag):
         war_trophies = clan_data['clanWarTrophies']
         required_trophies = clan_data['requiredTrophies']
         member_count = clan_data['members']
-        await ctx.send(f"Data for {clan_name}\n\nDescription: {description}\nClan Score: {score}\nClan War Trophies: {war_trophies}\nRequired Trophies: {required_trophies}\nMember Count: {member_count}")
+        
+        player_info = []
+        for member in clan_data['memberList']:
+            player_name = member['name']
+            trophies = member['trophies']
+            player_info.append(f"Player: {player_name}, Trophies: {trophies}")
+
+        player_info_str = '\n'.join(player_info)
+
+        await ctx.send(f"Data for {clan_name}\n\nDescription: {description}\nClan Score: {score}\nClan War Trophies: {war_trophies}\nRequired Trophies: {required_trophies}\nMember Count: {member_count}\n\nPlayers:\n{player_info_str}")
     else:
-        await ctx.send('api error')
+        await ctx.send('API error')
 
 
 def get_player_tag(player_name):
@@ -834,9 +792,13 @@ async def deck(ctx, player_name: str, trophies: int):
                             headers={'Authorization': clash_api_token})
     data = response.json()
     
+    # Debug: Print the entire battle log data
+    print(data)
+    
     # Find the player's most recent battle where they had the given trophy count
     battle = None
     for b in data:
+        print(f"Checking battle: {b}")
         if 'team' in b:
             for p in b['team']:
                 if p['tag'] == player_tag and p['startingTrophies'] == trophies:
@@ -844,6 +806,9 @@ async def deck(ctx, player_name: str, trophies: int):
                     break
         if battle is not None:
             break
+    
+    # Debug: Print the identified battle
+    print(f"Identified battle: {battle}")
     
     # Extract the player's deck from the battle data
     deck = None
@@ -859,6 +824,7 @@ async def deck(ctx, player_name: str, trophies: int):
         await ctx.send(f"{player_name}'s current deck at {trophies} trophies: {deck_str}")
     else:
         await ctx.send(f"Could not find a battle where {player_name} had {trophies} trophies.")
+
 
 
 
@@ -1081,7 +1047,7 @@ async def ping(ctx):
 @ping.error
 async def ping_error(ctx, error):
     if isinstance(error, commands.MissingRole):
-        error_channel = client.get_channel(1080940745864773764)
+        error_channel = client.get_channel([REDACTED])
         await ctx.reply('you dont have authority to do that') 
         await error_channel.send(f"{ctx.author} tried to use ping")
         
@@ -1303,12 +1269,12 @@ async def on_error(event, *args, **kwargs):
     embed.add_field(name='Event', value=event)
     embed.description = '```py\n%s\n```' % traceback.format_exc()
     embed.timestamp = datetime.utcnow()
-    error_channel = client.get_channel(1080940745864773764)
+    error_channel = client.get_channel([REDACTED])
     await error_channel.send(embed=embed)        
         
     
     
-monkey_token = '[REDACTED]'
-cool_token = '[REDACTED]'
+monkey_token = [REDACTED]
+cool_token = [REDACTED]
 
-client.run('[REDACTED]')
+client.run([REDACTED])
