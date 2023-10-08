@@ -1,4 +1,4 @@
-<div align="center"
+<div align="center">
 <h1> Monkey Bot </h1>
 </div>
 
