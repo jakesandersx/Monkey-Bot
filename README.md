@@ -3,7 +3,7 @@
 </div>
 
 
-### Monkey Bot is a multi-role discord bot in python that I have worked on/off with for a span of about two years. It includes a wide vartiety of commands including games, clash royale API scraping data, or user / server information.
+### Monkey Bot is a multi-role discord bot in python that I have worked on/off with for a span of about two years. It includes a wide vartiety of commands including games, clash royale API scraping data, or user / server information. It also tracks message data via MySQL.
 
 # Commands:
 
